@@ -56,6 +56,16 @@
   #shoplist .shoprow { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
   #shoplist .shopbuy { margin-top: 0; padding: 6px 18px; }
   #shoplist .shopbuy:disabled { opacity: 0.4; cursor: default; }
+  #missioncard { position: absolute; top: 14px; left: 250px; padding: 10px 14px; min-width: 250px; max-width: 340px; }
+  #mcid { font-size: 15px; font-weight: 800; color: #ffc93c; }
+  #mcbar { height: 6px; background: rgba(0,0,0,0.5); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  #mcfill { height: 100%; width: 0; background: #ffc93c; }
+  #mcnext { font-size: 13px; margin-top: 6px; line-height: 1.4; }
+  #mctime { font-size: 13px; color: #7ee787; font-weight: 700; margin-top: 2px; min-height: 16px; }
+  #pdpanel { position: absolute; left: 14px; top: 230px; padding: 10px 14px; min-width: 250px; font-size: 13px; line-height: 1.5; }
+  #pdhead { font-weight: 800; color: #7db8ff; letter-spacing: 1px; }
+  #pdrows b { color: #ffc93c; }
+  #dialogface { width: 44px; height: 44px; border-radius: 50%; background: #ffc93c; color: #1a1206; font-weight: 800; font-size: 18px; line-height: 44px; margin: 0 auto 6px; text-align: center; }
 </style>
 </head>
 <body>
@@ -77,9 +87,11 @@
     <canvas id="minimap" width="220" height="220"></canvas>
     <div id="speed">0 <small>km/h</small></div>
   </div>
+  <div id="missioncard" class="panel"><div id="mcid"></div><div id="mcbar"><div id="mcfill"></div></div><div id="mcnext"></div><div id="mctime"></div></div>
+  <div id="pdpanel" class="panel"><div id="pdhead"></div><div id="pdrows"></div></div>
   <div id="objective" class="panel"><span class="label">OBJECTIVE</span><span id="objtext">Free roam — explore Solmar</span></div>
   <div id="feed"></div>
-  <div id="dialog" class="panel"><div class="who" id="dialogwho"></div><div class="text" id="dialogtext"></div></div>
+  <div id="dialog" class="panel"><div id="dialogface"></div><div class="who" id="dialogwho"></div><div class="text" id="dialogtext"></div></div>
   <div id="hint" class="panel">WASD drive / walk · Shift run · E steal car · F shoot · R reload · Space brake · P pause · Q radio · B shop</div>
   <div id="crosshair"></div>
 </div>
