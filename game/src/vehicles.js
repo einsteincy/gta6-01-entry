@@ -147,6 +147,7 @@ export function createVehicles(G) {
       speed: 0,
       color,
       kind,
+      name: { 0xc0392b: 'VELOZ COMET RS', 0x2e86c1: 'VENTO STRADA' }[color] || 'SOLMAR GT',
       hp: 100,
       maxHp: 100,
       driver: null,

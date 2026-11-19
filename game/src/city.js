@@ -8,12 +8,12 @@ export function createCity(G) {
   const group = new THREE.Group();
   group.name = 'city';
   scene.add(group);
-  scene.background = new THREE.Color(0x74c2f2); 
-  scene.fog = new THREE.Fog(0xf0e3c8, 200, 560); 
+  scene.background = new THREE.Color(0xffb36b); 
+  scene.fog = new THREE.Fog(0xffd9a0, 200, 560); 
   scene.traverse((obj) => {
     if (obj.isDirectionalLight) {
       obj.intensity = 3.1; 
-      obj.color.set(0xfff0bd); 
+      obj.color.set(0xffc98a); 
     }
     if (obj.isHemisphereLight) obj.intensity = 1.05; 
   });

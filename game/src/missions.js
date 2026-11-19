@@ -39,6 +39,7 @@ function dist2D(ax, az, bx, bz) {
   const dz = az - bz;
   return Math.sqrt(dx * dx + dz * dz);
 }
+const TOT = { m1: 2, m2: 2, m3: 3, m4: 3, m5: 2, m6: 3, m7: 2, m8: 3 };
 export function createMissions(G) {
   const THREE = G.THREE;
   let pillar = null;
@@ -114,6 +115,7 @@ export function createMissions(G) {
       id: current.def.id,
       title: current.def.title,
       stage,
+      tot: TOT[current.def.id],
       objective,
       marker: markerPos ? new THREE.Vector3(markerPos.x, 0, markerPos.z) : null,
     });
@@ -344,6 +346,7 @@ export function createMissions(G) {
       }
     } else if (current.stage === 2) {
       const left = Math.ceil(90 - current.stageTime);
+      if (G.mission) G.mission.left = left;
       if (left <= 0) {
         G.announce('Out of time — the client walked.');
         abort();
@@ -454,6 +457,7 @@ export function createMissions(G) {
       }
     } else if (current.stage === 2) {
       const left = Math.ceil(120 - current.stageTime);
+      if (G.mission) G.mission.left = left;
       if (left <= 0) {
         G.announce('Too slow — the buyer walked.');
         abort();

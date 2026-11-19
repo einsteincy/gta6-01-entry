@@ -30,7 +30,7 @@ const G = {
   rng: createRandom(seed),
   input: null,
   screen: 'title',
-  clock: { time: 0, dayMinutes: 480 }, 
+  clock: { time: 0, dayMinutes: 1110 }, 
   player: null, 
   city: null, 
   cars: [], 
@@ -118,7 +118,7 @@ function buildScene() {
   const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 900);
   camera.position.set(0, 40, 90);
   const sun = new THREE.DirectionalLight(PALETTE.sun, 2.6);
-  sun.position.set(120, 180, 60);
+  sun.position.set(200, 55, 30);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   sun.shadow.camera.left = -260;
@@ -163,7 +163,7 @@ function updateCamera(dt) {
 }
 function stepWorld(dt) {
   G.clock.time += dt;
-  G.clock.dayMinutes = (480 + G.clock.time * 0.5) % 1440; 
+  G.clock.dayMinutes = (1110 + G.clock.time * 0.5) % 1440; 
   G.api.city?.update(dt);
   G.api.vehicles?.update(dt);
   G.api.player?.update(dt);

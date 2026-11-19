@@ -1,6 +1,7 @@
 const STATIONS = [
   {
     name: 'SOLMAR FM',
+    track: 'Malecón Mirage · Vela Roja',
     bpm: 132,
     bass: [55, 0, 55, 0, 65.41, 0, 55, 0, 87.31, 0, 87.31, 0, 98, 0, 82.41, 0],
     lead: [220, 0, 0, 261.63, 0, 0, 329.63, 0, 0, 392, 0, 0, 329.63, 0, 261.63, 0],
@@ -9,6 +10,7 @@ const STATIONS = [
   },
   {
     name: 'PALM 98',
+    track: 'Neon Drive · Palms',
     bpm: 84,
     chords: [
       [220, 261.63, 329.63],
@@ -21,6 +23,7 @@ const STATIONS = [
   },
   {
     name: 'VISTA TALK',
+    track: 'Sunset Talk · Dario',
     bpm: 100,
     talk: [1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0],
     pitches: [180, 210, 160, 240, 190, 220, 170],
@@ -94,6 +97,9 @@ export function createRadio(G) {
   function currentName() {
     return STATIONS[station].name;
   }
+  function currentTrack() {
+    return STATIONS[station].track;
+  }
   function setStation(i) {
     station = ((i % STATIONS.length) + STATIONS.length) % STATIONS.length;
     step = 0;
@@ -129,6 +135,7 @@ export function createRadio(G) {
     next,
     setStation,
     currentName,
+    currentTrack,
     stationNames: STATIONS.map((s) => s.name),
     get station() {
       return station;

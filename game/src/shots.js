@@ -4,6 +4,10 @@ function holdKey(G, code, seconds) {
   for (let i = 0; i < steps; i += 1) G.stepWorld(1 / 60);
   G.input.keys.delete(code);
 }
+function step(G, seconds) {
+  const steps = Math.round(seconds * 60);
+  for (let i = 0; i < steps; i += 1) G.stepWorld(1 / 60);
+}
 function placeCamera(G, px, py, pz, lx, ly, lz) {
   G.shotCamera = {
     pos: new G.THREE.Vector3(px, py, pz),
@@ -15,39 +19,59 @@ export function stageShot(G, name) {
   G.screen = 'playing';
   G.api.hud?.show(false);
   if (name === 'drive') {
-    G.api.vehicles.spawnPlayerCar(20, 140, Math.PI, 0xc0392b);
-    G.api.traffic.reset();
-    holdKey(G, 'KeyW', 3);
+    G.cash = 1250;
+    G.respect = 10;
+    G.api.missions.start('m1');
+    G.api.player.teleport(14, 27, Math.PI);
+    G.api.vehicles.tryEnterOrSteal();
+    step(G, 1);
+    holdKey(G, 'KeyW', 1);
+    G.announce('VEHICLE STOLEN');
     const p = G.player.pos;
-    G.api.vehicles.spawnCar(p.x + 2, p.z - 20, Math.PI, 0xe67e22, 'traffic');
-    placeCamera(G, p.x, 7, p.z + 26, p.x, 2, p.z - 30);
+    placeCamera(G, p.x, 8, p.z + 20, p.x, 1, p.z);
     return 'drive';
   }
   if (name === 'chase') {
+    G.cash = 4200;
+    G.respect = 80;
+    G.api.missions.start('m4');
     G.api.vehicles.spawnPlayerCar(20, 120, Math.PI, 0x2e86c1);
-    G.api.police.setWanted(3);
     holdKey(G, 'KeyW', 2);
-    G.api.police.spawnChase(3);
+    G.api.police.setWanted(5);
+    G.api.police.spawnChase(2);
+    step(G, 0.3);
     const p = G.player.pos;
-    placeCamera(G, p.x + 2, 9, p.z + 40, p.x, 2, p.z - 20);
+    // Rear 3/4 chase cam: car travels toward -z (angle PI), so +z is behind it.
+    // v1 at +25 back left the car ~115px wide at 1280 and dwarfed by the
+    // foreground police (spawned 9-16 behind the player, on the sightline).
+    // v2 at +16 back / 5 high / +8 side: car ~2x larger, centre-frame above
+    // the dialog box; the +9 police car stays in frame at the left edge,
+    // the +16 one falls out of frame behind the camera.
+    placeCamera(G, p.x + 8, 5, p.z + 16, p.x, 1.5, p.z);
     return 'chase';
   }
   if (name === 'mission') {
-    G.api.vehicles.spawnCar(6, 24, Math.PI / 2, 0xe67e22, 'parked');
-    G.api.player.teleport(2, 28, Math.PI / 2);
-    G.api.missions.start('m1');
-    holdKey(G, 'KeyW', 0.5);
-    const m = G.mission?.marker ?? { x: 0, z: -40 };
-    const p = G.player.pos;
-    placeCamera(G, p.x - 16, 5, p.z - 6, m.x, 2, m.z);
+    G.cash = 2400;
+    G.respect = 60;
+    G.upgrades.neon = true;
+    G.api.player.teleport(-60, 44, 0);
+    G.api.hud.toggleShop(true);
+    placeCamera(G, -44, 7, 60, -60, 1.5, 44);
     return 'mission';
   }
+  G.cash = 6850;
+  G.respect = 120;
+  G.clock.time = 44;
+  G.api.missions.start('m8');
   G.api.vehicles.spawnPlayerCar(20, 140, Math.PI, 0xc0392b);
-  G.api.police.setWanted(2);
-  G.api.traffic.reset();
   holdKey(G, 'KeyW', 2.5);
+  G.api.police.setWanted(4);
   G.api.police.spawnChase(2);
+  step(G, 0.3);
   const p = G.player.pos;
-  placeCamera(G, p.x - 8, 7, p.z + 28, p.x, 2, p.z - 25);
+  // Rear 3/4 cover cam: same fix as chase (v2: +16 back / 5 high / +8 side,
+  // lookAt the car centre so the player car is large and unmistakable).
+  placeCamera(G, p.x + 8, 5, p.z + 16, p.x, 1.5, p.z);
+  G.api.hud.dialog('DARIO', 'Last job, Leo — make it count.');
   return 'cover';
 }

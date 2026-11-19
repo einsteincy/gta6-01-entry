@@ -239,6 +239,23 @@ export function createPolice(G) {
     const c = G.collideCircle ? G.collideCircle(c0.x, c0.z, 1) : c0;
     buildCop(c.x, c.z);
   }
+  function units() {
+    const names = ['GULL-1', 'PATROL-2', 'PATROL-3', 'INTERCEPT-4', 'PATROL-5', 'UNIT-6', 'UNIT-7'];
+    const st = (d) => (d < 10 ? 'RAMMING' : d < 35 ? 'PURSUIT' : 'SEARCHING');
+    const out = [];
+    for (let i = 0; i < policeCars.length; i += 1) {
+      const d = Math.round(distToPlayer(policeCars[i].pos.x, policeCars[i].pos.z));
+      out.push({ name: names[i % names.length], dist: d, state: st(d) });
+    }
+    for (let i = 0; i < footCops.length; i += 1) {
+      const d = Math.round(distToPlayer(footCops[i].pos.x, footCops[i].pos.z));
+      out.push({ name: `FOOT-${i + 1}`, dist: d, state: st(d) });
+    }
+    if (heli) {
+      out.push({ name: 'AIR-1', dist: Math.round(distToPlayer(heli.group.position.x, heli.group.position.z)), state: 'SPOTLIGHT' });
+    }
+    return out;
+  }
   function reset() {
     G.wanted = 0;
     sinceCrime = 0;
@@ -389,5 +406,5 @@ export function createPolice(G) {
       }
     }
   }
-  return { update, addHeat, setWanted, spawnChase, reset };
+  return { update, addHeat, setWanted, spawnChase, reset, units };
 }

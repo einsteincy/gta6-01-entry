@@ -28,7 +28,7 @@ export const CAR = {
   length: 4.4,
   width: 2.0,
 };
-export const TRAFFIC = { cars: 14, speedMin: 9, speedMax: 14, peds: 22, pedSpeed: 1.4 };
+export const TRAFFIC = { cars: 18, speedMin: 9, speedMax: 14, peds: 30, pedSpeed: 1.4 };
 export const WANTED = {
   max: 5,
   steal: 1,

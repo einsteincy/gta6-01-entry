@@ -26,8 +26,17 @@ export function createHUD(G) {
     objtext: $('objtext'),
     feed: $('feed'),
     dialog: $('dialog'),
+    dialogface: $('dialogface'),
     dialogwho: $('dialogwho'),
     dialogtext: $('dialogtext'),
+    missioncard: $('missioncard'),
+    mcid: $('mcid'),
+    mcfill: $('mcfill'),
+    mcnext: $('mcnext'),
+    mctime: $('mctime'),
+    pdpanel: $('pdpanel'),
+    pdhead: $('pdhead'),
+    pdrows: $('pdrows'),
     hint: $('hint'),
     crosshair: $('crosshair'),
     vignette: $('vignette'),
@@ -63,6 +72,7 @@ export function createHUD(G) {
   }
   function dialog(who, text) {
     if (!el.dialog) return;
+    if (el.dialogface) el.dialogface.textContent = who.slice(0, 2);
     if (el.dialogwho) el.dialogwho.textContent = who;
     if (el.dialogtext) el.dialogtext.textContent = text;
     el.dialog.style.display = 'block';
@@ -124,8 +134,12 @@ export function createHUD(G) {
     if (open) {
       renderShopList();
       el.shop.classList.add('on');
+      // Hide the objective bar while the shop overlay is open so it cannot
+      // peek through behind the shop rows.
+      if (el.objective) el.objective.style.display = 'none';
     } else {
       el.shop.classList.remove('on');
+      if (el.objective) el.objective.style.display = '';
     }
     return open;
   }
@@ -261,16 +275,15 @@ export function createHUD(G) {
       }
     }
     const ms = p ? (p.car ? Math.abs(p.car.speed) : Math.abs(p.speed)) : 0;
-    const speed = `${Math.round(ms * 3.6)} <small>km/h</small>`;
+    const cn = p?.car?.name;
+    const speed = cn ? `${cn} · ${Math.round(ms * 3.6)} <small>km/h</small>` : `${Math.round(ms * 3.6)} <small>km/h</small>`;
     if (speed !== last.speed && el.speed) {
       el.speed.innerHTML = speed;
       last.speed = speed;
     }
     const radioApi = G.api.radio;
     if (el.radio) {
-      const radioText = radioApi
-        ? (radioApi.playing ? `♪ ${radioApi.currentName()}` : `Radio: ${radioApi.currentName()}`)
-        : '';
+      const radioText = radioApi ? `♪ ${radioApi.currentName()} — ${radioApi.currentTrack()}` : '';
       if (radioText !== last.radio) {
         el.radio.textContent = radioText;
         last.radio = radioText;
@@ -287,6 +300,20 @@ export function createHUD(G) {
       }
     }
     if (frame % 2 === 0) drawMinimap(now);
+    if (frame % 4 === 1) {
+      const m = G.mission;
+      if (el.missioncard) el.missioncard.style.display = m ? 'block' : 'none';
+      if (m) {
+        if (el.mcid) el.mcid.textContent = `${m.id.toUpperCase()} · ${m.title}`;
+        if (el.mcfill) el.mcfill.style.width = `${Math.round((m.stage / (m.tot || m.stage)) * 100)}%`;
+        if (el.mcnext) el.mcnext.textContent = m.objective;
+        if (el.mctime) el.mctime.textContent = m.left != null ? `${m.left}s LEFT` : '';
+      }
+      const u = G.api.police?.units?.() ?? [];
+      if (el.pdpanel) el.pdpanel.style.display = wanted === 0 && u.length === 0 ? 'none' : 'block';
+      if (el.pdhead) el.pdhead.textContent = `SOLMAR PD — ${u.length} UNITS · CODE ${Math.max(1, wanted)}`;
+      if (el.pdrows) el.pdrows.innerHTML = u.map((x) => `<div><b>${x.name}</b> · ${x.dist}m · ${x.state}</div>`).join('');
+    }
     if (el.vignette) {
       if (now < flashUntil) {
         el.vignette.style.opacity = '0.6';
@@ -300,7 +327,11 @@ export function createHUD(G) {
       const showCross = !!p && p.onFoot && G.screen === 'playing';
       el.crosshair.style.display = showCross ? 'block' : 'none';
     }
-    if (dialogUntil && now >= dialogUntil && el.dialog) {
+    if (dialogUntil && now >= dialogUntil && el.dialog && !G.shotCamera) {
+      // In staged-shot mode (G.shotCamera set) the two paint frames can take
+      // longer than DIALOG_MS under SwiftShader, which would hide the dialogue
+      // before the screenshot. Shot frames are frozen, so keep it visible there;
+      // live play (shotCamera null) still auto-hides after 4 s.
       el.dialog.style.display = 'none';
       dialogUntil = 0;
     }
