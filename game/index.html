@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOLMAR SUNSET — open-world crime in Solmar</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0e1a24; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  #hud { position: fixed; inset: 0; pointer-events: none; color: #f4f1e8; display: none; }
+  #hud.on { display: block; }
+  .panel { background: rgba(10, 18, 26, 0.55); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; backdrop-filter: blur(2px); }
+  #topleft { position: absolute; top: 14px; left: 14px; padding: 10px 14px; min-width: 210px; }
+  #stars { font-size: 20px; letter-spacing: 3px; color: #ffc93c; text-shadow: 0 0 8px rgba(255, 180, 0, 0.7); min-height: 24px; }
+  #cash { font-size: 22px; font-weight: 800; color: #7ee787; margin-top: 2px; }
+  #respect { font-size: 15px; font-weight: 700; color: #ffc93c; margin-top: 2px; }
+  #weapon { font-size: 14px; font-weight: 600; color: #e8e4d8; margin-top: 2px; }
+  #healthwrap { margin-top: 8px; height: 10px; background: rgba(0,0,0,0.5); border-radius: 5px; overflow: hidden; }
+  #healthfill { height: 100%; width: 100%; background: linear-gradient(90deg, #e5534b, #f2a33c); transition: width 0.2s; }
+  #clock { margin-top: 6px; font-size: 13px; color: #cfd8dc; }
+  #district { margin-top: 2px; font-size: 13px; color: #ffc93c; font-weight: 600; min-height: 16px; }
+  #topright { position: absolute; top: 14px; right: 14px; text-align: right; }
+  #minimap { width: 220px; height: 220px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(10, 18, 26, 0.6); }
+  #speed { font-size: 26px; font-weight: 800; margin-top: 4px; text-shadow: 0 2px 6px rgba(0,0,0,0.7); }
+  #speed small { font-size: 13px; font-weight: 400; color: #cfd8dc; }
+  #objective { position: absolute; left: 50%; bottom: 118px; transform: translateX(-50%); padding: 8px 18px; font-size: 15px; font-weight: 600; text-align: center; max-width: 640px; }
+  #objective .label { color: #ffc93c; font-size: 11px; letter-spacing: 2px; display: block; }
+  #feed { position: absolute; left: 14px; bottom: 118px; max-width: 340px; font-size: 13px; line-height: 1.5; }
+  #feed div { background: rgba(10, 18, 26, 0.55); border-radius: 6px; padding: 4px 10px; margin-top: 4px; }
+  #dialog { position: absolute; left: 50%; bottom: 170px; transform: translateX(-50%); padding: 12px 20px; max-width: 600px; text-align: center; display: none; }
+  #dialog .who { color: #ffc93c; font-weight: 800; letter-spacing: 1px; }
+  #dialog .text { font-size: 16px; margin-top: 4px; }
+  #hint { position: absolute; left: 14px; bottom: 14px; font-size: 12px; color: #cfd8dc; padding: 8px 12px; line-height: 1.6; }
+  #crosshair { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; display: none; }
+  #crosshair::before, #crosshair::after { content: ""; position: absolute; background: rgba(255,255,255,0.9); box-shadow: 0 0 4px #000; }
+  #crosshair::before { left: 10px; top: 0; width: 2px; height: 22px; }
+  #crosshair::after { left: 0; top: 10px; width: 22px; height: 2px; }
+  #vignette { position: fixed; inset: 0; pointer-events: none; box-shadow: inset 0 0 120px rgba(220, 30, 30, 0.85); opacity: 0; transition: opacity 0.3s; }
+  .overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; text-align: center; color: #f4f1e8; background: linear-gradient(180deg, rgba(8, 20, 32, 0.82), rgba(8, 20, 32, 0.55)); z-index: 10; }
+  .overlay.on { display: flex; }
+  .overlay h1 { font-size: 64px; margin: 0; letter-spacing: 6px; color: #ffc93c; text-shadow: 0 4px 24px rgba(0,0,0,0.8); }
+  .overlay h2 { font-size: 18px; font-weight: 400; color: #cfd8dc; margin: 8px 0 24px; letter-spacing: 2px; }
+  .overlay p { font-size: 15px; line-height: 1.7; color: #e8e4d8; max-width: 560px; margin: 4px 0; }
+  .overlay .keys { font-size: 13px; color: #9fb3c8; margin-top: 18px; line-height: 1.9; }
+  .overlay .keys b { color: #f4f1e8; }
+  .bigbtn { pointer-events: auto; margin-top: 26px; padding: 14px 42px; font-size: 18px; font-weight: 800; letter-spacing: 2px; color: #1a1206; background: #ffc93c; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 6px 24px rgba(255, 201, 60, 0.35); }
+  .bigbtn:hover { background: #ffd968; }
+  .smallbtn { pointer-events: auto; margin-top: 12px; padding: 10px 26px; font-size: 14px; font-weight: 700; color: #f4f1e8; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; }
+  #missionlist { margin-top: 10px; text-align: left; font-size: 15px; line-height: 2; }
+  #missionlist .done { color: #7ee787; }
+  #missionlist .todo { color: #e8e4d8; }
+  #radio { margin-top: 6px; font-size: 13px; color: #ffc93c; min-height: 16px; }
+  #shoplist { margin-top: 10px; text-align: left; font-size: 15px; line-height: 1.6; max-width: 560px; }
+  #shoplist .shopnote { color: #9fb3c8; font-size: 14px; }
+  #shoplist .shoprow { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  #shoplist .shopbuy { margin-top: 0; padding: 6px 18px; }
+  #shoplist .shopbuy:disabled { opacity: 0.4; cursor: default; }
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="SOLMAR SUNSET: drive, steal cars, outrun the police and run story missions in the city of Solmar"></canvas>
+<p id="status" role="status" aria-live="polite"></p>
+
+<div id="hud">
+  <div id="topleft" class="panel">
+    <div id="stars"></div>
+    <div id="cash">$0</div>
+    <div id="respect">★ RESPECT 0</div>
+    <div id="weapon"></div>
+    <div id="healthwrap"><div id="healthfill"></div></div>
+    <div id="clock">08:00 · Solmar</div>
+    <div id="district"></div>
+    <div id="radio"></div>
+  </div>
+  <div id="topright">
+    <canvas id="minimap" width="220" height="220"></canvas>
+    <div id="speed">0 <small>km/h</small></div>
+  </div>
+  <div id="objective" class="panel"><span class="label">OBJECTIVE</span><span id="objtext">Free roam — explore Solmar</span></div>
+  <div id="feed"></div>
+  <div id="dialog" class="panel"><div class="who" id="dialogwho"></div><div class="text" id="dialogtext"></div></div>
+  <div id="hint" class="panel">WASD drive / walk · Shift run · E steal car · F shoot · R reload · Space brake · P pause · Q radio · B shop</div>
+  <div id="crosshair"></div>
+</div>
+<div id="vignette"></div>
+
+<div id="title" class="overlay on">
+  <h1>SOLMAR SUNSET</h1>
+  <h2>OPEN-WORLD CRIME IN SOLMAR</h2>
+  <p>You are Leo Marín, a getaway driver new to the sun-soaked city of Solmar.
+  Steal cars, outrun the police, run jobs for the crew — and build a name for yourself.</p>
+  <div id="missionlist"></div>
+  <button class="bigbtn" id="startbtn">START ENGINE</button>
+  <button class="smallbtn" id="continuebtn" style="display:none">CONTINUE — LOAD SAVE</button>
+  <p class="keys"><b>WASD</b> drive / walk &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>E</b> steal car &nbsp;·&nbsp; <b>F / click</b> shoot &nbsp;·&nbsp; <b>R</b> reload &nbsp;·&nbsp; <b>Space</b> brake &nbsp;·&nbsp; <b>Q</b> radio &nbsp;·&nbsp; <b>B</b> shop &nbsp;·&nbsp; <b>P</b> pause &nbsp;·&nbsp; click a mission above to play it</p>
+</div>
+
+<div id="pause" class="overlay">
+  <h1 style="font-size:42px">PAUSED</h1>
+  <p>Solmar waits for no one — except right now.</p>
+  <button class="bigbtn" id="resumebtn">RESUME</button>
+  <button class="smallbtn" id="quitbtn">SAVE &amp; QUIT TO TITLE</button>
+</div>
+
+<div id="gameover" class="overlay">
+  <h1 style="font-size:42px">BUSTED</h1>
+  <p id="gameovertext">You went down. The crew pulled you out — minus a hospital bill.</p>
+  <button class="bigbtn" id="respawnbtn">GET BACK OUT THERE</button>
+</div>
+
+<div id="shop" class="overlay">
+  <h1 style="font-size:42px">MARLIN STREET SHOP</h1>
+  <p>Ammo, first aid and body armor — cash only. The street keeps moving while you shop.</p>
+  <div id="shoplist"></div>
+  <button class="bigbtn" id="shopclosebtn">CLOSE (B)</button>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
