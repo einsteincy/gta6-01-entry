@@ -134,8 +134,6 @@ export function createHUD(G) {
     if (open) {
       renderShopList();
       el.shop.classList.add('on');
-      // Hide the objective bar while the shop overlay is open so it cannot
-      // peek through behind the shop rows.
       if (el.objective) el.objective.style.display = 'none';
     } else {
       el.shop.classList.remove('on');
@@ -328,10 +326,6 @@ export function createHUD(G) {
       el.crosshair.style.display = showCross ? 'block' : 'none';
     }
     if (dialogUntil && now >= dialogUntil && el.dialog && !G.shotCamera) {
-      // In staged-shot mode (G.shotCamera set) the two paint frames can take
-      // longer than DIALOG_MS under SwiftShader, which would hide the dialogue
-      // before the screenshot. Shot frames are frozen, so keep it visible there;
-      // live play (shotCamera null) still auto-hides after 4 s.
       el.dialog.style.display = 'none';
       dialogUntil = 0;
     }

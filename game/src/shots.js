@@ -14,6 +14,9 @@ function placeCamera(G, px, py, pz, lx, ly, lz) {
     lookAt: new G.THREE.Vector3(lx, ly, lz),
   };
 }
+function heliTo(G, x, y, z) {
+  G.scene.traverse((o) => { if (o.isSpotLight) o.parent.position.set(x, y, z); });
+}
 export function stageShot(G, name) {
   G.resetWorld();
   G.screen = 'playing';
@@ -41,13 +44,8 @@ export function stageShot(G, name) {
     G.api.police.spawnChase(2);
     step(G, 0.3);
     const p = G.player.pos;
-    // Rear 3/4 chase cam: car travels toward -z (angle PI), so +z is behind it.
-    // v1 at +25 back left the car ~115px wide at 1280 and dwarfed by the
-    // foreground police (spawned 9-16 behind the player, on the sightline).
-    // v2 at +16 back / 5 high / +8 side: car ~2x larger, centre-frame above
-    // the dialog box; the +9 police car stays in frame at the left edge,
-    // the +16 one falls out of frame behind the camera.
-    placeCamera(G, p.x + 8, 5, p.z + 16, p.x, 1.5, p.z);
+    placeCamera(G, p.x + 8, 5, p.z - 18, p.x, 1.5, p.z - 2);
+    heliTo(G, p.x - 4, 12, p.z + 12);
     return 'chase';
   }
   if (name === 'mission') {
@@ -69,9 +67,8 @@ export function stageShot(G, name) {
   G.api.police.spawnChase(2);
   step(G, 0.3);
   const p = G.player.pos;
-  // Rear 3/4 cover cam: same fix as chase (v2: +16 back / 5 high / +8 side,
-  // lookAt the car centre so the player car is large and unmistakable).
-  placeCamera(G, p.x + 8, 5, p.z + 16, p.x, 1.5, p.z);
+  placeCamera(G, p.x + 8, 5, p.z - 18, p.x, 1.5, p.z - 2);
+  heliTo(G, p.x - 4, 12, p.z + 12);
   G.api.hud.dialog('DARIO', 'Last job, Leo — make it count.');
   return 'cover';
 }
