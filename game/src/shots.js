@@ -44,8 +44,8 @@ export function stageShot(G, name) {
     G.api.police.spawnChase(2);
     step(G, 0.3);
     const p = G.player.pos;
-    placeCamera(G, p.x + 8, 5, p.z - 18, p.x, 1.5, p.z - 2);
-    heliTo(G, p.x - 4, 12, p.z + 12);
+    placeCamera(G, p.x + 2, 3.5, p.z - 11, p.x, 0.5, p.z + 1);
+    heliTo(G, p.x - 4, 9, p.z + 12);
     return 'chase';
   }
   if (name === 'mission') {
@@ -67,8 +67,8 @@ export function stageShot(G, name) {
   G.api.police.spawnChase(2);
   step(G, 0.3);
   const p = G.player.pos;
-  placeCamera(G, p.x + 8, 5, p.z - 18, p.x, 1.5, p.z - 2);
-  heliTo(G, p.x - 4, 12, p.z + 12);
+  placeCamera(G, p.x + 2, 3.5, p.z - 11, p.x, 0.5, p.z + 1);
+  heliTo(G, p.x - 4, 9, p.z + 12);
   G.api.hud.dialog('DARIO', 'Last job, Leo — make it count.');
   return 'cover';
 }
